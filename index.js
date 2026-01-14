@@ -1,14 +1,31 @@
 import express from 'express';
-import cors from 'cors'
+import multer from 'multer';
 const app = express();
+const storage = multer.diskStorage({
+   destination:function (req,file,cb){
+      cb(null,'upload')
+   },
+   filename:function (req,file,cb){
+      cb(null,file.originalname)
+   }
+})
 
-app.use(cors());
+const upload= multer({ storage: storage })  
+
 app.get('/',(req,res)=>{
-   res.send({
-      name:"hanuman",
-      age:29,
-      email:"hanuman@test.com"
-   })
+   res.send(`
+      <form action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" name="myfile" />
+      <button>Upload file</button>
+      </form>
+      `)
+})
+
+app.post('/upload', upload.single('myfile'),(req,res)=>{
+res.send({
+   message:'file uploaded',
+   info:req.file
+})
 })
 
 app.listen(3200)
