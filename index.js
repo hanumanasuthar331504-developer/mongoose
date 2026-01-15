@@ -1,8 +1,12 @@
 import express from 'express';
+import session from 'express-session';
 
 const app = express();
 
 app.set('view engine','ejs');
+app.use(session({
+   secret:'apple'
+}))
 app.use(express.urlencoded({extended:true}))
 app.get("/login",(req,res)=>{
    res.render("login")
@@ -10,21 +14,15 @@ app.get("/login",(req,res)=>{
 
 
 app.post("/profile",(req,res)=>{
-   res.setHeader('Set-Cookie','login=true')
-   res.setHeader('Set-Cookie','name='+req.body.name)
-   res.render("profile")
+   req.session.data=req.body;
+   console.log(req.session.data)
+   res.render("profile")         
 })
 
-app.get("/",(req,res)=>{
-   let cookiesData = req.get("cookie");
-
-   cookiesData = cookiesData.split(";")
-
-   cookiesData= cookiesData[1].split("=");
-
-   console.log(cookiesData[1])
-
-   res.render("home",{name:cookiesData[1]})
+app.get('/',(req,res)=>{
+   const data = req.session.data;
+   console.log("data",data)
+   res.render("home",{data})
 })
 
-app.listen(3200)
+app.listen(3200)        
